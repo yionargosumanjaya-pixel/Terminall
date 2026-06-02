@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XSO TERMINAL v5.0</title>
+    <title>XSO TERMINAL v5.1</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0a0c; color: #d1d5db; font-family: 'Courier New', monospace; padding: 10px; font-size: 11px; }
-        .header { color: #f97316; font-size: 16px; font-weight: bold; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .header { color: #f97316; font-size: 16px; font-weight: bold; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         .live { color: #22c55e; font-size: 10px; }
+        .mode-selector { display: flex; gap: 6px; margin: 8px 0; }
+        .mode-btn { flex: 1; padding: 8px; border: 1px solid #1f2937; border-radius: 6px; background: #111827; color: #6b7280; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .mode-btn.active { border-color: #f97316; color: #f97316; background: #1a1208; }
+        .mode-btn.elite.active { border-color: #ef4444; color: #ef4444; background: #1a0808; }
         .signal { background: #111827; border-left: 4px solid #22c55e; padding: 10px; margin: 8px 0; border-radius: 6px; }
         .signal.short { border-left-color: #ef4444; }
         .signal-title { font-weight: bold; font-size: 13px; }
@@ -24,15 +28,27 @@
         .green { color: #22c55e; } .red { color: #ef4444; }
         #log { background: #050608; padding: 8px; margin-top: 8px; height: 100px; overflow-y: auto; font-size: 9px; color: #6b7280; border-radius: 5px; }
         .footer { text-align: center; color: #374151; font-size: 8px; margin-top: 8px; }
+        .mode-badge { font-size: 8px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+        .mode-badge.elite { background: #4c0519; color: #ef4444; }
+        .mode-badge.active { background: #1a1208; color: #f97316; }
     </style>
 </head>
 <body>
-    <div class="header">⚡ XSO v5.0 <span class="live">● LIVE</span></div>
-    <div id="signals"><div style="color:#6b7280;text-align:center;padding:20px;">🔍 Scanning 150 coins...</div></div>
+    <div class="header">
+        ⚡ XSO v5.1 <span class="live">● LIVE</span>
+    </div>
+
+    <div class="mode-selector">
+        <div class="mode-btn elite active" id="mode-elite" onclick="setMode('elite')">🔴 ELITE<br><small>85% · 1:3 RRR</small></div>
+        <div class="mode-btn" id="mode-active" onclick="setMode('active')">🟡 ACTIVE<br><small>78% · 1:2.5 RRR</small></div>
+    </div>
+
+    <div id="signals"><div style="color:#6b7280;text-align:center;padding:20px;">🔍 Scanning 150 coins...<br><small id="mode-display">Mode: ELITE (Score ≥ 85%)</small></div></div>
+
     <div style="color:#f97316;font-weight:bold;margin-top:10px;">🔥 WATCHLIST</div>
     <div class="watch" id="watchlist"></div>
     <div id="log"></div>
-    <div class="footer">XSO TERMINAL v5.0 | Binance Futures | 15 Filters</div>
+    <div class="footer">XSO TERMINAL v5.1 | Dual Mode | Binance Futures</div>
 
     <script>
         // ========== API KEY ==========
@@ -45,12 +61,26 @@
         const watchCoins = ['COTIUSDT','HIGHUSDT','JOEUSDT','IDUSDT','PEPEUSDT','WIFUSDT'];
         const tickerData = {}, oiData = {}, fundingData = {}, signalHistory = {}, priceHistory = {};
         let lastSignalTime = 0;
+        let currentMode = 'elite';
 
         function log(msg) {
             const l = document.getElementById('log');
             const t = new Date().toTimeString().slice(0,8);
             l.innerHTML = `<div>[${t}] ${msg}</div>` + l.innerHTML;
             if (l.children.length > 30) l.removeChild(l.lastChild);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-elite').classList.toggle('active', mode === 'elite');
+            document.getElementById('mode-active').classList.toggle('active', mode === 'active');
+            const display = document.getElementById('mode-display');
+            if (mode === 'elite') {
+                display.innerHTML = 'Mode: ELITE (Score ≥ 85% · RRR ≥ 1:3 · Vol ≥ $800K)';
+            } else {
+                display.innerHTML = 'Mode: ACTIVE (Score ≥ 78% · RRR ≥ 1:2.5 · Vol ≥ $500K)';
+            }
+            log('🔄 Mode: ' + mode.toUpperCase());
         }
 
         async function fetchOI() {
@@ -111,7 +141,8 @@
 
         function analyzeSignal(symbol) {
             const now = Date.now();
-            if (now - lastSignalTime < 90000) return;
+            const cooldown = currentMode === 'elite' ? 90000 : 45000;
+            if (now - lastSignalTime < cooldown) return;
             if (signalHistory[symbol]) return;
             const d = tickerData[symbol];
             if (!d) return;
@@ -120,25 +151,38 @@
 
             const price = d.price, change = d.change, vol = d.volume;
             const bid = d.bidQty, ask = d.askQty, cnt = d.count;
+
+            // Mode-based thresholds
+            const minVol = currentMode === 'elite' ? 800000 : 500000;
+            const minBaLong = currentMode === 'elite' ? 1.4 : 1.2;
+            const maxBaShort = currentMode === 'elite' ? 0.6 : 0.8;
+            const minRRR = currentMode === 'elite' ? 3.0 : 2.5;
+            const minScore = currentMode === 'elite' ? 85 : 78;
+            const minAvgTrade = currentMode === 'elite' ? 600 : 400;
+
+            if (vol < minVol) return;
+
             const baRatio = ask > 0 ? bid / ask : 1;
             const direction = change > 0 ? 'long' : 'short';
 
-            if (direction === 'long' && baRatio < 1.4) return;
-            if (direction === 'short' && baRatio > 0.6) return;
+            if (direction === 'long' && baRatio < minBaLong) return;
+            if (direction === 'short' && baRatio > maxBaShort) return;
 
-            const cvdOk = (direction === 'long' && price > d.prevPrice && baRatio > 1.3) || (direction === 'short' && price < d.prevPrice && baRatio < 0.7);
+            const cvdOk = (direction === 'long' && price > d.prevPrice && baRatio > (currentMode==='elite'?1.3:1.15)) || (direction === 'short' && price < d.prevPrice && baRatio < (currentMode==='elite'?0.7:0.85));
             if (!cvdOk) return;
 
             const avgTrade = cnt > 0 ? vol / cnt : 0;
-            if (vol < 800000 || avgTrade < 600) return;
+            if (avgTrade < minAvgTrade) return;
 
+            // Session filter (longgarin di active)
             const hour = new Date().getUTCHours();
-            if (!((hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22))) return;
+            const isHighVol = currentMode === 'elite' ? ((hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22)) : ((hour >= 6 && hour <= 11) || (hour >= 12 && hour <= 17) || (hour >= 18 && hour <= 23) || (hour >= 0 && hour <= 2));
+            if (!isHighVol) return;
 
             const sl = direction === 'long' ? price * 0.965 : price * 1.035;
             const tp1 = direction === 'long' ? price * 1.05 : price * 0.95;
             const rrr = Math.abs(price - sl) > 0 ? Math.abs(tp1 - price) / Math.abs(price - sl) : 0;
-            if (rrr < 3) return;
+            if (rrr < minRRR) return;
 
             const oi = oiData[symbol] || 0;
             const funding = fundingData[symbol] || 0;
@@ -146,18 +190,21 @@
             let score = 50;
             score += Math.min(15, Math.abs(change) * 3);
             score += Math.min(12, Math.abs(baRatio - 1) * 25);
-            score += vol > 3000000 ? 12 : vol > 1500000 ? 8 : 4;
-            score += rrr >= 4 ? 5 : 3;
+            score += vol > 3000000 ? 12 : vol > 1500000 ? 8 : vol > 800000 ? 5 : 3;
+            score += rrr >= 4 ? 5 : rrr >= 3 ? 3 : 2;
             score += cvdOk ? 15 : 0;
             if (oi > 0) score += 5;
             if ((direction === 'long' && funding < 0.005) || (direction === 'short' && funding > 0.005)) score += 5;
-            if (score < 85) return;
+            if (currentMode === 'active') score += 5;
+            if (score < minScore) return;
 
             signalHistory[symbol] = true;
             lastSignalTime = now;
             const name = symbol.replace('USDT','');
             const type = direction;
             const tp2 = type === 'long' ? price * 1.08 : price * 0.92;
+            const modeLabel = currentMode === 'elite' ? 'ELITE' : 'ACTIVE';
+            const modeClass = currentMode === 'elite' ? 'elite' : 'active';
 
             let tags = '';
             if (baRatio > 1.6) tags += '✔Bid dominance ';
@@ -170,7 +217,7 @@
             sigDiv.innerHTML = `
                 <div class="signal ${type}">
                     <div style="display:flex;justify-content:space-between;">
-                        <span class="signal-title">${type==='long'?'🟢 LONG':'🔴 SHORT'} — ${name}</span>
+                        <span class="signal-title">${type==='long'?'🟢 LONG':'🔴 SHORT'} — ${name} <span class="mode-badge ${modeClass}">${modeLabel}</span></span>
                         <span class="score">🎯 ${score.toFixed(0)}%</span>
                     </div>
                     <div style="color:#a78bfa;font-size:10px;">📐 RRR: 1:${rrr.toFixed(1)}</div>
@@ -182,8 +229,8 @@
                 </div>
             ` + sigDiv.innerHTML;
 
-            log(`🚨 ${type.toUpperCase()} ${name} | ${score.toFixed(0)}% | $${price.toFixed(6)}`);
-            setTimeout(() => { signalHistory[symbol] = false; }, 600000);
+            log(`🚨 [${modeLabel}] ${type.toUpperCase()} ${name} | ${score.toFixed(0)}% | $${price.toFixed(6)}`);
+            setTimeout(() => { signalHistory[symbol] = false; }, currentMode === 'elite' ? 600000 : 300000);
         }
 
         // ========== INIT ==========
@@ -192,7 +239,7 @@
         setInterval(fetchOI, 120000);
         setInterval(fetchFunding, 120000);
         connectWS();
-        log('🟢 v5.0 Active');
+        log('🟢 v5.1 Dual Mode Ready');
     </script>
 </body>
 </html>
