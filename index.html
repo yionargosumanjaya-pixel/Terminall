@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>XSO TERMINAL v5.1</title>
+    <title>XSO TERMINAL v5.4</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0a0c; color: #d1d5db; font-family: 'Courier New', monospace; padding: 10px; font-size: 11px; }
@@ -35,29 +35,31 @@
 </head>
 <body>
     <div class="header">
-        ⚡ XSO v5.1 <span class="live">● LIVE</span>
+        ⚡ XSO v5.4 <span class="live">● LIVE</span>
     </div>
 
     <div class="mode-selector">
-        <div class="mode-btn elite active" id="mode-elite" onclick="setMode('elite')">🔴 ELITE<br><small>85% · 1:3 RRR</small></div>
-        <div class="mode-btn" id="mode-active" onclick="setMode('active')">🟡 ACTIVE<br><small>78% · 1:2.5 RRR</small></div>
+        <div class="mode-btn elite active" id="mode-elite" onclick="setMode('elite')">🔴 ELITE<br><small>85% · 1:3 · $400K</small></div>
+        <div class="mode-btn" id="mode-active" onclick="setMode('active')">🟡 ACTIVE<br><small>78% · 1:2.5 · $200K</small></div>
     </div>
 
-    <div id="signals"><div style="color:#6b7280;text-align:center;padding:20px;">🔍 Scanning 150 coins...<br><small id="mode-display">Mode: ELITE (Score ≥ 85%)</small></div></div>
+    <div id="signals"><div style="color:#6b7280;text-align:center;padding:20px;">🔍 Scanning 150 coins...<br><small id="mode-display">Mode: ELITE · CVD Ketat · Full Session</small></div></div>
 
     <div style="color:#f97316;font-weight:bold;margin-top:10px;">🔥 WATCHLIST</div>
     <div class="watch" id="watchlist"></div>
     <div id="log"></div>
-    <div class="footer">XSO TERMINAL v5.1 | Dual Mode | Binance Futures</div>
+    <div class="footer">XSO TERMINAL v5.4 | CVD Ketat · Full Session · Telegram Bot</div>
 
     <script>
-        // ========== API KEY ==========
+        // ============================================
+        // ⚠️ ISI 4 BARIS INI DENGAN DATA ASLI KAMU
+        // ============================================
         const BINANCE_API_KEY = "gTLiNp5jUx2EjVbK20unQd7EM9GimHwdkzF83SLw8zxNpp21gsOZWm38SdtZSemd";
         const BINANCE_SECRET = "fptEkB5qCzYX1D97Wlvl459vEqx29HgJawI3sfMLKl97zNqk5DdmYAY2Jo9URXjP";
         const TELEGRAM_TOKEN = "8626803193:AAEjn2EWI4IPBWJ3NdT_AWL3VGPYgnIH_mU";
         const TELEGRAM_CHAT_ID = "8447813471";
+        // ============================================
 
-        // ========== 150 COINS ==========
         const SYMBOLS = ['COTIUSDT','HIGHUSDT','JOEUSDT','ACHUSDT','DUSKUSDT','IDUSDT','CTSIUSDT','BONKUSDT','FLOKIUSDT','PEPEUSDT','WIFUSDT','ENAUSDT','REIUSDT','FRONTUSDT','BICOUSDT','LITUSDT','RLCUSDT','TRBUSDT','SUPERUSDT','TLMUSDT','AGLDUSDT','AIUSDT','ALICEUSDT','ALPHAUSDT','AMBUSDT','ANKRUSDT','API3USDT','ARPAUSDT','ASTRUSDT','ATAUSDT','AUCTIONUSDT','AUDIOUSDT','AVAUSDT','AXSUSDT','BAKEUSDT','BALUSDT','BANDUSDT','BATUSDT','BELUSDT','BLURUSDT','BNXUSDT','BSWUSDT','C98USDT','CELOUSDT','CELRUSDT','CHZUSDT','CKBUSDT','COMBOUSDT','COMPUSDT','CRVUSDT','CVXUSDT','CYBERUSDT','DARUSDT','DASHUSDT','DENTUSDT','DGBUSDT','DODOUSDT','DOGEUSDT','DOTUSDT','DYDXUSDT','EGLDUSDT','ENJUSDT','ENSUSDT','EOSUSDT','ETCUSDT','FETUSDT','FILUSDT','FIOUSDT','FLMUSDT','FLOWUSDT','FORTHUSDT','FTMUSDT','FXSUSDT','GALAUSDT','GLMRUSDT','GLMUSDT','GMTUSDT','GMXUSDT','GRTUSDT','GTCUSDT','HBARUSDT','HFTUSDT','HNTUSDT','HOOKUSDT','HOTUSDT','ICPUSDT','ICXUSDT','ILVUSDT','IMXUSDT','INJUSDT','IOSTUSDT','IOTAUSDT','IOTXUSDT','JASMYUSDT','JTOUSDT','KAVAUSDT','KDAUSDT','KEYUSDT','KLAYUSDT','KNCUSDT','KSMUSDT','LDOUSDT','LEVERUSDT','LINAUSDT','LINKUSDT','LOOMUSDT','LPTUSDT','LQTYUSDT','LRCUSDT','LSKUSDT','LTCUSDT','LUNAUSDT','MAGICUSDT','MANAUSDT','MASKUSDT','MINAUSDT','MKRUSDT','MTLUSDT','NEARUSDT','NEOUSDT','NKNUSDT','NMRUSDT','OCEANUSDT','OGNUSDT','OMGUSDT','ONEUSDT','ONTUSDT','OPUSDT','OXTUSDT','PENDLEUSDT','PEOPLEUSDT','PERPUSDT','PHBUSDT','POLYXUSDT','POWRUSDT','QNTUSDT','QTUMUSDT','RADUSDT','RDNTUSDT','REEFUSDT','RENUSDT','RIFUSDT','RNDRUSDT','ROSEUSDT','RSRUSDT','RUNEUSDT','RVNUSDT','SANDUSDT','SEIUSDT','SFPUSDT','SHIBUSDT','SKLUSDT','SLPUSDT','SNXUSDT','SOLUSDT','SPELLUSDT','SSVUSDT','STGUSDT','STMXUSDT','STORJUSDT','STXUSDT','SUNUSDT','SUSHIUSDT','TUSDT','TFUELUSDT','THETAUSDT','TIAUSDT','TOKENUSDT','TRUUSDT','TRXUSDT','TWTUSDT','UMAUSDT','UNFIUSDT','UNIUSDT','VETUSDT','VGXUSDT','WAVESUSDT','WAXPUSDT','WLDUSDT','WOOUSDT','XECUSDT','XEMUSDT','XLMUSDT','XMRUSDT','XNOUSDT','XRPUSDT','XTZUSDT','YFIUSDT','YGGUSDT','ZECUSDT','ZENUSDT','ZILUSDT','ZRXUSDT'];
 
         const watchCoins = ['COTIUSDT','HIGHUSDT','JOEUSDT','IDUSDT','PEPEUSDT','WIFUSDT'];
@@ -72,15 +74,20 @@
             if (l.children.length > 30) l.removeChild(l.lastChild);
         }
 
+        function sendTelegram(msg) {
+            if (TELEGRAM_TOKEN.includes('PASTE')) return;
+            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(msg)}`);
+        }
+
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('mode-elite').classList.toggle('active', mode === 'elite');
             document.getElementById('mode-active').classList.toggle('active', mode === 'active');
             const display = document.getElementById('mode-display');
             if (mode === 'elite') {
-                display.innerHTML = 'Mode: ELITE (Score ≥ 85% · RRR ≥ 1:3 · Vol ≥ $800K)';
+                display.innerHTML = 'Mode: ELITE · CVD Ketat · Score ≥ 85% · RRR 1:3 · Vol $400K';
             } else {
-                display.innerHTML = 'Mode: ACTIVE (Score ≥ 78% · RRR ≥ 1:2.5 · Vol ≥ $500K)';
+                display.innerHTML = 'Mode: ACTIVE · CVD Ketat · Score ≥ 78% · RRR 1:2.5 · Vol $200K';
             }
             log('🔄 Mode: ' + mode.toUpperCase());
         }
@@ -143,7 +150,7 @@
 
         function analyzeSignal(symbol) {
             const now = Date.now();
-            const cooldown = currentMode === 'elite' ? 90000 : 45000;
+            const cooldown = currentMode === 'elite' ? 60000 : 30000;
             if (now - lastSignalTime < cooldown) return;
             if (signalHistory[symbol]) return;
             const d = tickerData[symbol];
@@ -152,15 +159,13 @@
             if (!hist || hist.length < 50) return;
 
             const price = d.price, change = d.change, vol = d.volume;
-            const bid = d.bidQty, ask = d.askQty, cnt = d.count;
+            const bid = d.bidQty, ask = d.askQty;
 
-            // Mode-based thresholds
-            const minVol = currentMode === 'elite' ? 800000 : 500000;
-            const minBaLong = currentMode === 'elite' ? 1.4 : 1.2;
-            const maxBaShort = currentMode === 'elite' ? 0.6 : 0.8;
+            const minVol = currentMode === 'elite' ? 400000 : 200000;
+            const minBaLong = currentMode === 'elite' ? 1.4 : 1.3;
+            const maxBaShort = currentMode === 'elite' ? 0.6 : 0.7;
             const minRRR = currentMode === 'elite' ? 3.0 : 2.5;
             const minScore = currentMode === 'elite' ? 85 : 78;
-            const minAvgTrade = currentMode === 'elite' ? 600 : 400;
 
             if (vol < minVol) return;
 
@@ -170,16 +175,13 @@
             if (direction === 'long' && baRatio < minBaLong) return;
             if (direction === 'short' && baRatio > maxBaShort) return;
 
-            const cvdOk = (direction === 'long' && price > d.prevPrice && baRatio > (currentMode==='elite'?1.3:1.15)) || (direction === 'short' && price < d.prevPrice && baRatio < (currentMode==='elite'?0.7:0.85));
+            // ========== CVD PROXY KETAT ==========
+            const cvdOk = (direction === 'long' && price > d.prevPrice && baRatio > 1.3) || (direction === 'short' && price < d.prevPrice && baRatio < 0.7);
             if (!cvdOk) return;
 
-            const avgTrade = cnt > 0 ? vol / cnt : 0;
-            if (avgTrade < minAvgTrade) return;
-
-            // Session filter (longgarin di active)
+            // Full session: exclude WIB 00:00-06:00 (UTC 17:00-23:00)
             const hour = new Date().getUTCHours();
-            const isHighVol = currentMode === 'elite' ? ((hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22)) : ((hour >= 6 && hour <= 11) || (hour >= 12 && hour <= 17) || (hour >= 18 && hour <= 23) || (hour >= 0 && hour <= 2));
-            if (!isHighVol) return;
+            if (hour >= 17 && hour <= 23) return;
 
             const sl = direction === 'long' ? price * 0.965 : price * 1.035;
             const tp1 = direction === 'long' ? price * 1.05 : price * 0.95;
@@ -192,7 +194,7 @@
             let score = 50;
             score += Math.min(15, Math.abs(change) * 3);
             score += Math.min(12, Math.abs(baRatio - 1) * 25);
-            score += vol > 3000000 ? 12 : vol > 1500000 ? 8 : vol > 800000 ? 5 : 3;
+            score += vol > 2000000 ? 12 : vol > 1000000 ? 8 : vol > 500000 ? 5 : 3;
             score += rrr >= 4 ? 5 : rrr >= 3 ? 3 : 2;
             score += cvdOk ? 15 : 0;
             if (oi > 0) score += 5;
@@ -231,7 +233,10 @@
                 </div>
             ` + sigDiv.innerHTML;
 
-            log(`🚨 [${modeLabel}] ${type.toUpperCase()} ${name} | ${score.toFixed(0)}% | $${price.toFixed(6)}`);
+            const alertMsg = `🚨 [${modeLabel}] ${type.toUpperCase()} ${name} | Score: ${score.toFixed(0)}% | Entry: $${price.toFixed(6)} | SL: $${sl.toFixed(6)} | TP1: $${tp1.toFixed(6)} | TP2: $${tp2.toFixed(6)} | RRR: 1:${rrr.toFixed(1)}`;
+            log(alertMsg);
+            sendTelegram(alertMsg);
+
             setTimeout(() => { signalHistory[symbol] = false; }, currentMode === 'elite' ? 600000 : 300000);
         }
 
@@ -241,7 +246,7 @@
         setInterval(fetchOI, 120000);
         setInterval(fetchFunding, 120000);
         connectWS();
-        log('🟢 v5.1 Dual Mode Ready');
+        log('🟢 v5.4 CVD Ketat · Full Session Ready');
     </script>
 </body>
 </html>
