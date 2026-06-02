@@ -3,306 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>XSO TERMINAL v2.0</title>
+    <title>XSO TERMINAL v5.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0c;
-            color: #d1d5db;
-            font-family: 'Courier New', monospace;
-            padding: 10px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #1f2937; padding-bottom: 10px; margin-bottom: 10px;
-        }
+        body { background: #0a0a0c; color: #c9cdd3; font-family: 'Courier New', monospace; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 10px; margin-bottom: 10px; }
         .header h1 { color: #f97316; font-size: 18px; letter-spacing: 1px; }
-        .status { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #22c55e; }
+        .status { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #22c55e; }
         .status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .section-title {
-            color: #f97316; font-size: 11px; letter-spacing: 1px;
-            margin: 14px 0 6px; border-left: 3px solid #f97316; padding-left: 8px;
-        }
-        .signal-card {
-            background: #111827; border: 1px solid #1f2937; border-radius: 8px;
-            padding: 12px; margin-bottom: 10px; position: relative;
-        }
-        .signal-card.long { border-left: 3px solid #22c55e; }
-        .signal-card.short { border-left: 3px solid #ef4444; }
-        .signal-header { display: flex; justify-content: space-between; align-items: center; }
-        .signal-type { font-weight: bold; font-size: 13px; }
+        .section-title { color: #f97316; font-size: 11px; letter-spacing: 1px; margin: 14px 0 6px; border-left: 3px solid #f97316; padding-left: 8px; }
+        .signal-card { background: #0f1117; border: 1px solid #1f2937; border-radius: 10px; padding: 14px; margin-bottom: 12px; position: relative; }
+        .signal-card.long { border-left: 4px solid #22c55e; }
+        .signal-card.short { border-left: 4px solid #ef4444; }
+        .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .signal-type { font-weight: bold; font-size: 14px; }
         .long .signal-type { color: #22c55e; }
         .short .signal-type { color: #ef4444; }
-        .accuracy { background: #1f2937; padding: 3px 8px; border-radius: 10px; font-size: 11px; color: #fbbf24; }
-        .signal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; font-size: 11px; }
+        .accuracy { background: #1f2937; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #fbbf24; font-weight: bold; }
+        .rrr { font-size: 11px; color: #a78bfa; margin-top: 2px; }
+        .signal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; font-size: 12px; }
         .detail-item { display: flex; justify-content: space-between; }
         .detail-label { color: #6b7280; }
-        .detail-value { color: #e5e7eb; }
-        .confluence { margin-top: 8px; font-size: 10px; color: #6b7280; border-top: 1px solid #1f2937; padding-top: 6px; }
-        .confluence span { color: #22c55e; margin-right: 6px; }
+        .detail-value { color: #e5e7eb; font-weight: bold; }
+        .confluence { margin-top: 10px; font-size: 10px; color: #9ca3af; border-top: 1px solid #1f2937; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .confluence span { background: #111827; padding: 3px 8px; border-radius: 6px; color: #22c55e; }
+        .confluence span.warn { color: #fbbf24; }
         .watchlist { display: flex; flex-wrap: wrap; gap: 6px; }
-        .watch-item {
-            background: #111827; border: 1px solid #1f2937; border-radius: 6px;
-            padding: 6px 10px; font-size: 11px; display: flex; align-items: center;
-            gap: 6px; flex: 1; min-width: 45%;
-        }
+        .watch-item { background: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 7px 10px; font-size: 11px; display: flex; align-items: center; gap: 8px; flex: 1; min-width: 45%; }
         .watch-symbol { font-weight: bold; color: #e5e7eb; }
         .watch-change.up { color: #22c55e; }
         .watch-change.down { color: #ef4444; }
-        .log-area {
-            background: #0a0a0c; border: 1px solid #1f2937; border-radius: 6px;
-            padding: 8px; margin-top: 10px; height: 100px; overflow-y: auto;
-            font-size: 10px; color: #6b7280; flex-grow: 1;
-        }
-        .log-entry { margin-bottom: 3px; }
-        .log-entry .time { color: #f97316; margin-right: 6px; }
-        .loading { text-align: center; color: #6b7280; padding: 20px; font-style: italic; }
-        .footer {
-            margin-top: 10px; text-align: center; font-size: 9px;
-            color: #374151; border-top: 1px solid #1f2937; padding-top: 8px;
-        }
+        .log-area { background: #050608; border: 1px solid #1f2937; border-radius: 6px; padding: 10px; margin-top: 10px; height: 120px; overflow-y: auto; font-size: 10px; color: #6b7280; flex-grow: 1; }
+        .log-entry { margin-bottom: 4px; }
+        .log-entry .time { color: #f97316; margin-right: 8px; }
+        .loading { text-align: center; color: #6b7280; padding: 24px; font-style: italic; }
+        .footer { margin-top: 10px; text-align: center; font-size: 9px; color: #374151; border-top: 1px solid #1f2937; padding-top: 10px; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 4px; }
+        .badge.bullish { background: #064e3b; color: #22c55e; }
+        .badge.bearish { background: #4c0519; color: #ef4444; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>⚡ XSO v2.0</h1>
-        <div class="status"><div class="status-dot"></div>LIVE</div>
+        <h1>⚡ XSO v5.0 API</h1>
+        <div class="status"><div class="status-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
     </div>
 
-    <div id="signals-container"><div class="loading">🔍 Scanning 150 coins...</div></div>
-
+    <div id="signals-container"><div class="loading">🔍 Elite setup detection active...</div></div>
     <div class="section-title">🔥 WATCHLIST</div>
     <div class="watchlist" id="watchlist"><div class="loading">Loading...</div></div>
-
     <div class="section-title">📋 SIGNAL LOG</div>
-    <div class="log-area" id="log">
-        <div class="log-entry"><span class="time">[--:--]</span> Initializing v2.0...</div>
-    </div>
+    <div class="log-area" id="log"><div class="log-entry"><span class="time">[--:--]</span> Booting v5.0 API...</div></div>
+    <div class="footer">XSO TERMINAL v5.0 | 15 Filters | OI & Funding LIVE | Min RRR 1:3</div>
 
-    <div class="footer">XSO TERMINAL v2.0 | Data: Binance Futures | Filter: Institutional Grade</div>
-
+    <script src="apikey.js"></script>
     <script>
-        // ============ 150 LOW-MID CAP ALTCOINS ============
         const SYMBOLS = [
-            'COTIUSDT','HIGHUSDT','JOEUSDT','ACHUSDT','DUSKUSDT','IDUSDT','CTSIUSDT',
-            'BONKUSDT','FLOKIUSDT','PEPEUSDT','WIFUSDT','ENAUSDT','REIUSDT','FRONTUSDT',
-            'BICOUSDT','LITUSDT','RLCUSDT','TRBUSDT','SUPERUSDT','TLMUSDT','AGLDUSDT',
-            'AIUSDT','ALICEUSDT','ALPHAUSDT','AMBUSDT','ANKRUSDT','API3USDT','ARPAUSDT',
-            'ASTRUSDT','ATAUSDT','AUCTIONUSDT','AUDIOUSDT','AVAUSDT','AXSUSDT','BAKEUSDT',
-            'BALUSDT','BANDUSDT','BATUSDT','BELUSDT','BLURUSDT','BNXUSDT','BSWUSDT',
-            'C98USDT','CELOUSDT','CELRUSDT','CHZUSDT','CKBUSDT','COMBOUSDT','COMPUSDT',
-            'CRVUSDT','CVXUSDT','CYBERUSDT','DARUSDT','DASHUSDT','DENTUSDT','DGBUSDT',
-            'DODOUSDT','DOGEUSDT','DOTUSDT','DYDXUSDT','EGLDUSDT','ENJUSDT','ENSUSDT',
-            'EOSUSDT','ETCUSDT','FETUSDT','FILUSDT','FIOUSDT','FLMUSDT','FLOWUSDT',
-            'FORTHUSDT','FTMUSDT','FXSUSDT','GALAUSDT','GLMRUSDT','GLMUSDT','GMTUSDT',
-            'GMXUSDT','GRTUSDT','GTCUSDT','HBARUSDT','HFTUSDT','HNTUSDT','HOOKUSDT',
-            'HOTUSDT','ICPUSDT','ICXUSDT','ILVUSDT','IMXUSDT','INJUSDT','IOSTUSDT',
-            'IOTAUSDT','IOTXUSDT','JASMYUSDT','JTOUSDT','KAVAUSDT','KDAUSDT','KEYUSDT',
-            'KLAYUSDT','KNCUSDT','KSMUSDT','LDOUSDT','LEVERUSDT','LINAUSDT','LINKUSDT',
-            'LOOMUSDT','LPTUSDT','LQTYUSDT','LRCUSDT','LSKUSDT','LTCUSDT','LUNAUSDT',
-            'MAGICUSDT','MANAUSDT','MASKUSDT','MINAUSDT','MKRUSDT','MTLUSDT','NEARUSDT',
-            'NEOUSDT','NKNUSDT','NMRUSDT','OCEANUSDT','OGNUSDT','OMGUSDT','ONEUSDT',
-            'ONTUSDT','OPUSDT','OXTUSDT','PENDLEUSDT','PEOPLEUSDT','PERPUSDT','PHBUSDT',
-            'POLYXUSDT','POWRUSDT','QNTUSDT','QTUMUSDT','RADUSDT','RDNTUSDT','REEFUSDT',
-            'RENUSDT','RIFUSDT','RNDRUSDT','ROSEUSDT','RSRUSDT','RUNEUSDT','RVNUSDT',
-            'SANDUSDT','SEIUSDT','SFPUSDT','SHIBUSDT','SKLUSDT','SLPUSDT','SNXUSDT',
-            'SOLUSDT','SPELLUSDT','SSVUSDT','STGUSDT','STMXUSDT','STORJUSDT','STXUSDT',
-            'SUNUSDT','SUSHIUSDT','TUSDT','TFUELUSDT','THETAUSDT','TIAUSDT','TOKENUSDT',
-            'TRUUSDT','TRXUSDT','TWTUSDT','UMAUSDT','UNFIUSDT','UNIUSDT','VETUSDT',
-            'VGXUSDT','WAVESUSDT','WAXPUSDT','WLDUSDT','WOOUSDT','XECUSDT','XEMUSDT',
-            'XLMUSDT','XMRUSDT','XNOUSDT','XRPUSDT','XTZUSDT','YFIUSDT','YGGUSDT',
-            'ZECUSDT','ZENUSDT','ZILUSDT','ZRXUSDT'
+            'COTIUSDT','HIGHUSDT','JOEUSDT','ACHUSDT','DUSKUSDT','IDUSDT','CTSIUSDT','BONKUSDT','FLOKIUSDT','PEPEUSDT',
+            'WIFUSDT','ENAUSDT','REIUSDT','FRONTUSDT','BICOUSDT','LITUSDT','RLCUSDT','TRBUSDT','SUPERUSDT','TLMUSDT',
+            'AGLDUSDT','AIUSDT','ALICEUSDT','ALPHAUSDT','AMBUSDT','ANKRUSDT','API3USDT','ARPAUSDT','ASTRUSDT','ATAUSDT',
+            'AUCTIONUSDT','AUDIOUSDT','AVAUSDT','AXSUSDT','BAKEUSDT','BALUSDT','BANDUSDT','BATUSDT','BELUSDT','BLURUSDT',
+            'BNXUSDT','BSWUSDT','C98USDT','CELOUSDT','CELRUSDT','CHZUSDT','CKBUSDT','COMBOUSDT','COMPUSDT','CRVUSDT',
+            'CVXUSDT','CYBERUSDT','DARUSDT','DASHUSDT','DENTUSDT','DGBUSDT','DODOUSDT','DOGEUSDT','DOTUSDT','DYDXUSDT',
+            'EGLDUSDT','ENJUSDT','ENSUSDT','EOSUSDT','ETCUSDT','FETUSDT','FILUSDT','FIOUSDT','FLMUSDT','FLOWUSDT',
+            'FORTHUSDT','FTMUSDT','FXSUSDT','GALAUSDT','GLMRUSDT','GLMUSDT','GMTUSDT','GMXUSDT','GRTUSDT','GTCUSDT',
+            'HBARUSDT','HFTUSDT','HNTUSDT','HOOKUSDT','HOTUSDT','ICPUSDT','ICXUSDT','ILVUSDT','IMXUSDT','INJUSDT',
+            'IOSTUSDT','IOTAUSDT','IOTXUSDT','JASMYUSDT','JTOUSDT','KAVAUSDT','KDAUSDT','KEYUSDT','KLAYUSDT','KNCUSDT',
+            'KSMUSDT','LDOUSDT','LEVERUSDT','LINAUSDT','LINKUSDT','LOOMUSDT','LPTUSDT','LQTYUSDT','LRCUSDT','LSKUSDT',
+            'LTCUSDT','LUNAUSDT','MAGICUSDT','MANAUSDT','MASKUSDT','MINAUSDT','MKRUSDT','MTLUSDT','NEARUSDT','NEOUSDT',
+            'NKNUSDT','NMRUSDT','OCEANUSDT','OGNUSDT','OMGUSDT','ONEUSDT','ONTUSDT','OPUSDT','OXTUSDT','PENDLEUSDT',
+            'PEOPLEUSDT','PERPUSDT','PHBUSDT','POLYXUSDT','POWRUSDT','QNTUSDT','QTUMUSDT','RADUSDT','RDNTUSDT','REEFUSDT',
+            'RENUSDT','RIFUSDT','RNDRUSDT','ROSEUSDT','RSRUSDT','RUNEUSDT','RVNUSDT','SANDUSDT','SEIUSDT','SFPUSDT',
+            'SHIBUSDT','SKLUSDT','SLPUSDT','SNXUSDT','SOLUSDT','SPELLUSDT','SSVUSDT','STGUSDT','STMXUSDT','STORJUSDT',
+            'STXUSDT','SUNUSDT','SUSHIUSDT','TUSDT','TFUELUSDT','THETAUSDT','TIAUSDT','TOKENUSDT','TRUUSDT','TRXUSDT',
+            'TWTUSDT','UMAUSDT','UNFIUSDT','UNIUSDT','VETUSDT','VGXUSDT','WAVESUSDT','WAXPUSDT','WLDUSDT','WOOUSDT',
+            'XECUSDT','XEMUSDT','XLMUSDT','XMRUSDT','XNOUSDT','XRPUSDT','XTZUSDT','YFIUSDT','YGGUSDT','ZECUSDT',
+            'ZENUSDT','ZILUSDT','ZRXUSDT'
         ];
 
-        const watchCoins = ['COTIUSDT', 'HIGHUSDT', 'JOEUSDT', 'IDUSDT', 'PEPEUSDT', 'WIFUSDT'];
+        const watchCoins = ['COTIUSDT','HIGHUSDT','JOEUSDT','IDUSDT','PEPEUSDT','WIFUSDT'];
+        const SIGNAL_COOLDOWN = 90000;
+        const MIN_RRR = 3.0;
 
-        // ============ STATE ============
         const tickerData = {};
+        const oiData = {};
+        const fundingData = {};
         const signalHistory = {};
+        const priceHistory = {};
         let lastSignalTime = 0;
-        const SIGNAL_COOLDOWN = 120000;
-        let connected = false;
 
         function addLog(msg) {
             const logDiv = document.getElementById('log');
             const now = new Date();
-            const time = now.toTimeString().slice(0, 8);
             const entry = document.createElement('div');
             entry.className = 'log-entry';
-            entry.innerHTML = `<span class="time">[${time}]</span> ${msg}`;
+            entry.innerHTML = `<span class="time">[${now.toTimeString().slice(0,8)}]</span> ${msg}`;
             logDiv.prepend(entry);
-            if (logDiv.children.length > 40) logDiv.removeChild(logDiv.lastChild);
+            if (logDiv.children.length > 50) logDiv.removeChild(logDiv.lastChild);
         }
 
-        // ============ WEBSOCKET: 24HR TICKER + ORDER BOOK ============
+        // ============ BINANCE API SIGNATURE ============
+        async function fetchBinanceAPI(endpoint) {
+            try {
+                const timestamp = Date.now();
+                const queryString = `timestamp=${timestamp}`;
+                const signature = await crypto.subtle.importKey('raw', new TextEncoder().encode(BINANCE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+                    .then(key => crypto.subtle.sign('HMAC', key, new TextEncoder().encode(queryString)))
+                    .then(sig => Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join(''));
+                const url = `https://fapi.binance.com${endpoint}?${queryString}&signature=${signature}`;
+                const res = await fetch(url, { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
+                return await res.json();
+            } catch(e) { return null; }
+        }
+
+        // ============ FETCH OI & FUNDING ============
+        async function fetchAllOI() {
+            try {
+                const res = await fetch('https://fapi.binance.com/fapi/v1/openInterest', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    data.forEach(d => { oiData[d.symbol] = parseFloat(d.openInterest); });
+                    addLog('✅ OI data loaded');
+                }
+            } catch(e) {}
+        }
+
+        async function fetchAllFunding() {
+            try {
+                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    data.forEach(d => { fundingData[d.symbol] = parseFloat(d.lastFundingRate); });
+                    addLog('✅ Funding rate loaded');
+                }
+            } catch(e) {}
+        }
+
+        // ============ WEBSOCKET ============
         function connectWebSocket() {
             const tickerStreams = SYMBOLS.map(s => `${s.toLowerCase()}@ticker`).join('/');
             const ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${tickerStreams}`);
-
             ws.onopen = () => {
-                connected = true;
-                addLog('✅ Connected. Scanning 150 coins...');
+                addLog('✅ WebSocket LIVE. 150 coins scanning...');
                 document.querySelector('.loading')?.remove();
             };
-
             ws.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
-                if (msg.data && msg.data.s) {
-                    const t = msg.data;
-                    const symbol = t.s;
-                    const price = parseFloat(t.c);
-                    const change = parseFloat(t.P);
-                    const volume = parseFloat(t.q);
-                    const high = parseFloat(t.h);
-                    const low = parseFloat(t.l);
-                    const bidQty = parseFloat(t.B);
-                    const askQty = parseFloat(t.A);
-                    const count = parseInt(t.n);
+                if (!msg.data || !msg.data.s) return;
+                const t = msg.data;
+                const symbol = t.s;
+                const price = parseFloat(t.c);
+                const change = parseFloat(t.P);
+                const volume = parseFloat(t.q);
+                const high = parseFloat(t.h);
+                const low = parseFloat(t.l);
+                const bidQty = parseFloat(t.B);
+                const askQty = parseFloat(t.A);
+                const count = parseInt(t.n);
 
-                    tickerData[symbol] = {
-                        price, change, volume, high, low,
-                        bidQty, askQty, count,
-                        prevPrice: tickerData[symbol]?.price || price
-                    };
+                if (!priceHistory[symbol]) priceHistory[symbol] = [];
+                priceHistory[symbol].push({ price, volume: parseFloat(t.v), time: Date.now() });
+                if (priceHistory[symbol].length > 200) priceHistory[symbol].shift();
 
-                    if (watchCoins.includes(symbol)) updateWatchlist();
-                    analyzeSignal(symbol);
-                }
+                tickerData[symbol] = { price, change, volume, high, low, bidQty, askQty, count, prevPrice: tickerData[symbol]?.price || price };
+                if (watchCoins.includes(symbol)) updateWatchlist();
+                analyzeSignal(symbol);
             };
-
-            ws.onerror = () => { addLog('❌ WS Error. Reconnecting...'); connected = false; };
-            ws.onclose = () => { addLog('⚠️ Disconnected. Reconnecting...'); connected = false; setTimeout(connectWebSocket, 3000); };
+            ws.onerror = () => addLog('❌ WS error');
+            ws.onclose = () => { addLog('⚠️ Reconnecting...'); setTimeout(connectWebSocket, 3000); };
         }
 
-        // ============ WATCHLIST ============
         function updateWatchlist() {
             const container = document.getElementById('watchlist');
             container.innerHTML = '';
             for (const symbol of watchCoins) {
                 const d = tickerData[symbol];
                 if (!d) continue;
-                const name = symbol.replace('USDT', '');
-                const changeClass = d.change >= 0 ? 'up' : 'down';
+                const name = symbol.replace('USDT','');
+                const cls = d.change >= 0 ? 'up' : 'down';
                 const sign = d.change >= 0 ? '+' : '';
-                container.innerHTML += `
-                    <div class="watch-item">
-                        <span class="watch-symbol">${name}</span>
-                        <span>$${d.price < 1 ? d.price.toFixed(6) : d.price.toFixed(4)}</span>
-                        <span class="watch-change ${changeClass}">${sign}${d.change.toFixed(1)}%</span>
-                    </div>`;
+                container.innerHTML += `<div class="watch-item"><span class="watch-symbol">${name}</span><span>$${d.price < 1 ? d.price.toFixed(6) : d.price.toFixed(4)}</span><span class="watch-change ${cls}">${sign}${d.change.toFixed(1)}%</span></div>`;
             }
         }
 
-        // ============ SIGNAL ENGINE v2.0 ============
+        function calcEMA(data, period) {
+            if (data.length < period) return null;
+            const k = 2 / (period + 1);
+            let ema = data.slice(0, period).reduce((a,b) => a + b.price, 0) / period;
+            for (let i = period; i < data.length; i++) ema = data[i].price * k + ema * (1 - k);
+            return ema;
+        }
+
+        function calcVWAP(data) {
+            if (data.length < 5) return null;
+            let totalPV = 0, totalVol = 0;
+            for (const d of data) { totalPV += d.price * d.volume; totalVol += d.volume; }
+            return totalVol > 0 ? totalPV / totalVol : null;
+        }
+
         function analyzeSignal(symbol) {
             const now = Date.now();
             if (now - lastSignalTime < SIGNAL_COOLDOWN) return;
             if (signalHistory[symbol]) return;
-
             const d = tickerData[symbol];
             if (!d) return;
+            const history = priceHistory[symbol];
+            if (!history || history.length < 50) return;
 
-            const price = d.price;
-            const change = d.change;
-            const volume = d.volume;
-            const bidQty = d.bidQty;
-            const askQty = d.askQty;
-            const count = d.count;
-            const high = d.high;
-            const low = d.low;
-            const range = high - low;
+            const price = d.price, change = d.change, volume = d.volume;
+            const bidQty = d.bidQty, askQty = d.askQty, count = d.count;
+            const range = d.high - d.low;
 
-            // ============ FILTER 1: Minimal potensi 5% ============
             const volatility = range > 0 ? (range / price) * 100 : 0;
             const potentialMove = Math.abs(change) + volatility;
             if (potentialMove < 5) return;
+            if (volume < 800000) return;
+            const avgTradeSize = count > 0 ? volume / count : 0;
+            if (avgTradeSize < 600) return;
+            const spread = range > 0 ? (range / price) * 100 : 1;
+            if (spread > 0.1) return;
 
-            // ============ FILTER 2: Volume spike (min 2x rata-rata) ============
-            const avgVolumePerTrade = count > 0 ? volume / count : 0;
-            if (avgVolumePerTrade < 500) return;
+            const baRatio = askQty > 0 ? bidQty / askQty : 1;
+            const isLongBias = baRatio > 1.4, isShortBias = baRatio < 0.6;
+            if (!isLongBias && !isShortBias) return;
 
-            // ============ FILTER 3: Bid/Ask ratio ============
-            const bidAskRatio = askQty > 0 ? bidQty / askQty : 1;
-            const isLongBias = bidAskRatio > 1.3;
-            const isShortBias = bidAskRatio < 0.7;
-            const isNeutral = !isLongBias && !isShortBias;
-            if (isNeutral) return;
+            const priceDelta = price - d.prevPrice;
+            const cvdBullish = priceDelta > 0 && baRatio > 1.3;
+            const cvdBearish = priceDelta < 0 && baRatio < 0.7;
+            if (!cvdBullish && !cvdBearish) return;
 
-            // ============ FILTER 4: CVD proxy (price vs bid/ask imbalance) ============
-            const prevPrice = d.prevPrice;
-            const priceDelta = price - prevPrice;
-            const orderFlowBullish = priceDelta > 0 && bidAskRatio > 1.2;
-            const orderFlowBearish = priceDelta < 0 && bidAskRatio < 0.8;
-            const orderFlowConfirm = orderFlowBullish || orderFlowBearish;
-            if (!orderFlowConfirm) return;
-
-            // ============ FILTER 5: Momentum aligned ============
+            const ema9 = calcEMA(history, 9), ema21 = calcEMA(history, 21), ema50 = calcEMA(history, 50);
+            let tfAlignment = 0;
+            if (ema9 && ema21 && ema50) {
+                if (ema9 > ema21 && ema21 > ema50) tfAlignment = 2;
+                else if (ema9 < ema21 && ema21 < ema50) tfAlignment = -2;
+                else if (ema9 > ema21) tfAlignment = 1;
+                else if (ema9 < ema21) tfAlignment = -1;
+            }
             const direction = change > 0 ? 'long' : 'short';
-            if (direction === 'long' && !isLongBias) return;
-            if (direction === 'short' && !isShortBias) return;
+            if (direction === 'long' && tfAlignment < 0) return;
+            if (direction === 'short' && tfAlignment > 0) return;
 
-            // ============ FILTER 6: Volume threshold ============
-            if (volume < 500000) return;
+            const vwap = calcVWAP(history);
+            let vwapScore = 0;
+            if (vwap) {
+                const vwapDev = ((price - vwap) / vwap) * 100;
+                if (direction === 'long' && vwapDev > -0.5 && vwapDev < 3) vwapScore = 10;
+                else if (direction === 'short' && vwapDev < 0.5 && vwapDev > -3) vwapScore = 10;
+                else if (Math.abs(vwapDev) < 5) vwapScore = 5;
+            }
+
+            const hour = new Date().getUTCHours();
+            const isHighVolSession = (hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22);
+            if (!isHighVolSession) return;
+
+            const whaleTrades = avgTradeSize > 2000 ? Math.floor(volume / avgTradeSize / 50) : 0;
+            const hasWhaleActivity = whaleTrades > 3;
+
+            const priceVsHighLow = (price - d.low) / (range || 1);
+            const isFalseBreakout = (direction === 'long' && priceVsHighLow > 0.95) || (direction === 'short' && priceVsHighLow < 0.05);
+            if (isFalseBreakout && !hasWhaleActivity) return;
+
+            const sl = direction === 'long' ? price * 0.965 : price * 1.035;
+            const tp1 = direction === 'long' ? price * 1.05 : price * 0.95;
+            const risk = Math.abs(price - sl), reward = Math.abs(tp1 - price);
+            const rrr = risk > 0 ? reward / risk : 0;
+            if (rrr < MIN_RRR) return;
+
+            // ============ OI & FUNDING FILTERS (API) ============
+            const oi = oiData[symbol] || 0;
+            const funding = fundingData[symbol] || 0;
+            let oiScore = 0, fundingScore = 0;
+            if (direction === 'long' && funding < 0.005) fundingScore = 5;
+            if (direction === 'short' && funding > 0.005) fundingScore = 5;
+            if (oi > 0) oiScore = 5;
 
             // ============ SCORING ============
             let score = 0;
-            score += Math.min(25, potentialMove * 4);
-            score += Math.min(20, (Math.abs(bidAskRatio - 1) * 30));
-            score += Math.min(20, Math.abs(change) * 3);
-            score += volume > 2000000 ? 15 : volume > 1000000 ? 10 : 5;
-            score += orderFlowConfirm ? 20 : 0;
+            score += Math.min(15, potentialMove * 2.5);
+            score += Math.min(12, Math.abs(baRatio - 1) * 25);
+            score += volume > 3000000 ? 12 : volume > 1500000 ? 8 : 4;
+            score += Math.abs(tfAlignment) >= 2 ? 12 : Math.abs(tfAlignment) >= 1 ? 8 : 0;
+            score += vwapScore;
+            score += isHighVolSession ? 5 : 0;
+            score += hasWhaleActivity ? 5 : 0;
+            score += rrr >= 4 ? 5 : rrr >= 3 ? 3 : 0;
+            score += (cvdBullish || cvdBearish) ? 15 : 0;
+            score += Math.min(10, Math.abs(change) * 2);
+            score += oiScore + fundingScore;
             score = Math.min(100, score);
-
             if (score < 85) return;
 
-            // ============ SIGNAL GENERATED ============
             signalHistory[symbol] = true;
             lastSignalTime = now;
-            const name = symbol.replace('USDT', '');
+            const name = symbol.replace('USDT','');
             const type = direction;
-            const sl = type === 'long' ? price * 0.965 : price * 1.035;
-            const tp1 = type === 'long' ? price * 1.05 : price * 0.95;
             const tp2 = type === 'long' ? price * 1.08 : price * 0.92;
-            const risk = ((Math.abs(price - sl) / price) * 100).toFixed(1);
-            const reward = ((Math.abs(tp1 - price) / price) * 100).toFixed(1);
 
-            const confluence = [];
-            if (bidAskRatio > 1.5) confluence.push('Bid dominance strong');
-            if (bidAskRatio < 0.5) confluence.push('Ask dominance strong');
-            if (volatility > 3) confluence.push('High volatility');
-            if (volume > 2000000) confluence.push('Volume spike 2x+');
-            if (orderFlowBullish) confluence.push('CVD bullish divergence');
-            if (orderFlowBearish) confluence.push('CVD bearish divergence');
+            const confluenceTags = [];
+            if (baRatio > 1.6) confluenceTags.push('Bid dominance');
+            if (baRatio < 0.4) confluenceTags.push('Ask dominance');
+            if (Math.abs(tfAlignment) >= 2) confluenceTags.push('EMA ribbon aligned');
+            if (vwapScore >= 10) confluenceTags.push('VWAP optimal');
+            if (hasWhaleActivity) confluenceTags.push(`Whale (${whaleTrades} trades)`);
+            if (cvdBullish) confluenceTags.push('CVD bullish');
+            if (cvdBearish) confluenceTags.push('CVD bearish');
+            if (rrr >= 4) confluenceTags.push('RRR excellent');
+            if (volatility > 3) confluenceTags.push('High volatility');
+            if (oi > 0) confluenceTags.push(`OI: $${(oi/1000000).toFixed(1)}M`);
+            if (funding !== 0) confluenceTags.push(`Funding: ${(funding*100).toFixed(3)}%`);
 
-            const signalsContainer = document.getElementById('signals-container');
-            signalsContainer.innerHTML = `
+            const container = document.getElementById('signals-container');
+            container.innerHTML = `
                 <div class="signal-card ${type}">
                     <div class="signal-header">
                         <span class="signal-type">${type === 'long' ? '🟢 LONG' : '🔴 SHORT'} — ${name}</span>
                         <span class="accuracy">🎯 ${score.toFixed(0)}%</span>
                     </div>
+                    <div class="rrr">📐 RRR: 1:${rrr.toFixed(1)} <span class="badge ${type === 'long' ? 'bullish' : 'bearish'}">${type.toUpperCase()}</span></div>
                     <div class="signal-details">
-                        <div class="detail-item"><span class="detail-label">Entry:</span><span class="detail-value">$${price.toFixed(6)}</span></div>
-                        <div class="detail-item"><span class="detail-label">SL:</span><span class="detail-value">$${sl.toFixed(6)} (-${risk}%)</span></div>
-                        <div class="detail-item"><span class="detail-label">TP1 (+5%):</span><span class="detail-value">$${tp1.toFixed(6)} (+${reward}%)</span></div>
-                        <div class="detail-item"><span class="detail-label">TP2 (+8%):</span><span class="detail-value">$${tp2.toFixed(6)}</span></div>
+                        <div class="detail-item"><span class="detail-label">Entry:</span><span class="detail-value">$${price < 1 ? price.toFixed(6) : price.toFixed(4)}</span></div>
+                        <div class="detail-item"><span class="detail-label">SL:</span><span class="detail-value">$${sl < 1 ? sl.toFixed(6) : sl.toFixed(4)} (-${((Math.abs(price-sl)/price)*100).toFixed(1)}%)</span></div>
+                        <div class="detail-item"><span class="detail-label">TP1 (+5%):</span><span class="detail-value">$${tp1 < 1 ? tp1.toFixed(6) : tp1.toFixed(4)}</span></div>
+                        <div class="detail-item"><span class="detail-label">TP2 (+8%):</span><span class="detail-value">$${tp2 < 1 ? tp2.toFixed(6) : tp2.toFixed(4)}</span></div>
                     </div>
-                    <div class="confluence">${confluence.map(c => '<span>✔</span>' + c).join(' ')}</div>
+                    <div class="confluence">${confluenceTags.map(t => t.includes('Whale')||t.includes('Funding') ? `<span class="warn">✔ ${t}</span>` : `<span>✔ ${t}</span>`).join('')}</div>
                 </div>
-            ` + signalsContainer.innerHTML;
+            ` + container.innerHTML;
 
-            addLog(`🚨 ${type.toUpperCase()} ${name} | Score: ${score.toFixed(0)}% | $${price.toFixed(6)} | Vol: $${(volume/1000000).toFixed(1)}M`);
+            addLog(`🚨 ${type.toUpperCase()} ${name} | Score: ${score.toFixed(0)}% | RRR: 1:${rrr.toFixed(1)} | $${price.toFixed(6)}`);
             setTimeout(() => { signalHistory[symbol] = false; }, 600000);
         }
 
         // ============ INIT ============
+        fetchAllOI();
+        fetchAllFunding();
+        setInterval(fetchAllOI, 120000);
+        setInterval(fetchAllFunding, 120000);
         connectWebSocket();
-        addLog('🟢 XSO Terminal v2.0 active | 150 coins | Institutional filters ON');
+        addLog('🟢 v5.0 API LIVE | 150 coins | OI & Funding REAL-TIME | 15 filters');
     </script>
-<script src="apikey.js"></script>
 </body>
 </html>
