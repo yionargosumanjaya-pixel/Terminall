@@ -2,297 +2,155 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>XSO TERMINAL v5.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0c; color: #c9cdd3; font-family: 'Courier New', monospace; padding: 10px; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 10px; margin-bottom: 10px; }
-        .header h1 { color: #f97316; font-size: 18px; letter-spacing: 1px; }
-        .status { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #22c55e; }
-        .status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .section-title { color: #f97316; font-size: 11px; letter-spacing: 1px; margin: 14px 0 6px; border-left: 3px solid #f97316; padding-left: 8px; }
-        .signal-card { background: #0f1117; border: 1px solid #1f2937; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
-        .signal-card.long { border-left: 4px solid #22c55e; }
-        .signal-card.short { border-left: 4px solid #ef4444; }
-        .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .signal-type { font-weight: bold; font-size: 14px; }
-        .long .signal-type { color: #22c55e; }
-        .short .signal-type { color: #ef4444; }
-        .accuracy { background: #1f2937; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #fbbf24; font-weight: bold; }
-        .rrr { font-size: 11px; color: #a78bfa; margin-top: 2px; }
-        .signal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; font-size: 12px; }
-        .detail-item { display: flex; justify-content: space-between; }
-        .detail-label { color: #6b7280; }
-        .detail-value { color: #e5e7eb; font-weight: bold; }
-        .confluence { margin-top: 10px; font-size: 10px; color: #9ca3af; border-top: 1px solid #1f2937; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
-        .confluence span { background: #111827; padding: 3px 8px; border-radius: 6px; color: #22c55e; }
-        .confluence span.warn { color: #fbbf24; }
-        .watchlist { display: flex; flex-wrap: wrap; gap: 6px; }
-        .watch-item { background: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 7px 10px; font-size: 11px; display: flex; align-items: center; gap: 8px; flex: 1; min-width: 45%; }
-        .watch-symbol { font-weight: bold; color: #e5e7eb; }
-        .watch-change.up { color: #22c55e; }
-        .watch-change.down { color: #ef4444; }
-        .log-area { background: #050608; border: 1px solid #1f2937; border-radius: 6px; padding: 10px; margin-top: 10px; height: 120px; overflow-y: auto; font-size: 10px; color: #6b7280; flex-grow: 1; }
-        .log-entry { margin-bottom: 4px; }
-        .log-entry .time { color: #f97316; margin-right: 8px; }
-        .loading { text-align: center; color: #6b7280; padding: 24px; font-style: italic; }
-        .footer { margin-top: 10px; text-align: center; font-size: 9px; color: #374151; border-top: 1px solid #1f2937; padding-top: 10px; }
-        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 4px; }
-        .badge.bullish { background: #064e3b; color: #22c55e; }
-        .badge.bearish { background: #4c0519; color: #ef4444; }
+        body { background: #0a0a0c; color: #d1d5db; font-family: 'Courier New', monospace; padding: 10px; font-size: 11px; }
+        .header { color: #f97316; font-size: 16px; font-weight: bold; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .live { color: #22c55e; font-size: 10px; }
+        .signal { background: #111827; border-left: 4px solid #22c55e; padding: 10px; margin: 8px 0; border-radius: 6px; }
+        .signal.short { border-left-color: #ef4444; }
+        .signal-title { font-weight: bold; font-size: 13px; }
+        .signal.long .signal-title { color: #22c55e; }
+        .signal.short .signal-title { color: #ef4444; }
+        .score { background: #1f2937; color: #fbbf24; padding: 2px 8px; border-radius: 8px; font-size: 10px; }
+        .row { display: flex; justify-content: space-between; margin: 3px 0; }
+        .label { color: #6b7280; }
+        .val { color: #e5e7eb; }
+        .tags { margin-top: 6px; font-size: 9px; color: #22c55e; }
+        .watch { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+        .watch-item { background: #111827; padding: 5px 8px; border-radius: 5px; font-size: 10px; display: flex; gap: 6px; }
+        .green { color: #22c55e; } .red { color: #ef4444; }
+        #log { background: #050608; padding: 8px; margin-top: 8px; height: 100px; overflow-y: auto; font-size: 9px; color: #6b7280; border-radius: 5px; }
+        .footer { text-align: center; color: #374151; font-size: 8px; margin-top: 8px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>⚡ XSO v5.0 API</h1>
-        <div class="status"><div class="status-dot" id="status-dot"></div><span id="status-text">LIVE</span></div>
-    </div>
-    <div id="signals-container"><div class="loading">🔍 Elite setup detection active...</div></div>
-    <div class="section-title">🔥 WATCHLIST</div>
-    <div class="watchlist" id="watchlist"><div class="loading">Loading...</div></div>
-    <div class="section-title">📋 SIGNAL LOG</div>
-    <div class="log-area" id="log"><div class="log-entry"><span class="time">[--:--]</span> Booting v5.0 API...</div></div>
-    <div class="footer">XSO TERMINAL v5.0 | 15 Filters | OI & Funding LIVE | Min RRR 1:3</div>
+    <div class="header">⚡ XSO v5.0 <span class="live">● LIVE</span></div>
+    <div id="signals"><div style="color:#6b7280;text-align:center;padding:20px;">🔍 Scanning 150 coins...</div></div>
+    <div style="color:#f97316;font-weight:bold;margin-top:10px;">🔥 WATCHLIST</div>
+    <div class="watch" id="watchlist"></div>
+    <div id="log"></div>
+    <div class="footer">XSO TERMINAL v5.0 | Binance Futures | 15 Filters</div>
 
     <script>
-        // ============================================
-        // ⚠️ GANTI DUA BARIS DI BAWAH INI DENGAN API KEY ASLI KAMU
-        // ============================================
-        const BINANCE_API_KEY =gTLiNp5jUx2EjVbK20unQd7EM9GimHwdkzF83SLw8zxNpp21gsOZWm38SdtZSemd
-        const BINANCE_SECRET =fptEkB5qCzYX1D97Wlvl459vEqx29HgJawI3sfMLKl97zNqk5DdmYAY2Jo9URXjP
-        // ============================================
+        // ========== API KEY ==========
+        const BINANCE_API_KEY = "gTLiNp5jUx2EjVbK20unQd7EM9GimHwdkzF83SLw8zxNpp21gsOZWm38SdtZSemd";
+        const BINANCE_SECRET = "fptEkB5qCzYX1D97Wlvl459vEqx29HgJawI3sfMLKl97zNqk5DdmYAY2Jo9URXjP";
 
-        const SYMBOLS = [
-            'COTIUSDT','HIGHUSDT','JOEUSDT','ACHUSDT','DUSKUSDT','IDUSDT','CTSIUSDT','BONKUSDT','FLOKIUSDT','PEPEUSDT',
-            'WIFUSDT','ENAUSDT','REIUSDT','FRONTUSDT','BICOUSDT','LITUSDT','RLCUSDT','TRBUSDT','SUPERUSDT','TLMUSDT',
-            'AGLDUSDT','AIUSDT','ALICEUSDT','ALPHAUSDT','AMBUSDT','ANKRUSDT','API3USDT','ARPAUSDT','ASTRUSDT','ATAUSDT',
-            'AUCTIONUSDT','AUDIOUSDT','AVAUSDT','AXSUSDT','BAKEUSDT','BALUSDT','BANDUSDT','BATUSDT','BELUSDT','BLURUSDT',
-            'BNXUSDT','BSWUSDT','C98USDT','CELOUSDT','CELRUSDT','CHZUSDT','CKBUSDT','COMBOUSDT','COMPUSDT','CRVUSDT',
-            'CVXUSDT','CYBERUSDT','DARUSDT','DASHUSDT','DENTUSDT','DGBUSDT','DODOUSDT','DOGEUSDT','DOTUSDT','DYDXUSDT',
-            'EGLDUSDT','ENJUSDT','ENSUSDT','EOSUSDT','ETCUSDT','FETUSDT','FILUSDT','FIOUSDT','FLMUSDT','FLOWUSDT',
-            'FORTHUSDT','FTMUSDT','FXSUSDT','GALAUSDT','GLMRUSDT','GLMUSDT','GMTUSDT','GMXUSDT','GRTUSDT','GTCUSDT',
-            'HBARUSDT','HFTUSDT','HNTUSDT','HOOKUSDT','HOTUSDT','ICPUSDT','ICXUSDT','ILVUSDT','IMXUSDT','INJUSDT',
-            'IOSTUSDT','IOTAUSDT','IOTXUSDT','JASMYUSDT','JTOUSDT','KAVAUSDT','KDAUSDT','KEYUSDT','KLAYUSDT','KNCUSDT',
-            'KSMUSDT','LDOUSDT','LEVERUSDT','LINAUSDT','LINKUSDT','LOOMUSDT','LPTUSDT','LQTYUSDT','LRCUSDT','LSKUSDT',
-            'LTCUSDT','LUNAUSDT','MAGICUSDT','MANAUSDT','MASKUSDT','MINAUSDT','MKRUSDT','MTLUSDT','NEARUSDT','NEOUSDT',
-            'NKNUSDT','NMRUSDT','OCEANUSDT','OGNUSDT','OMGUSDT','ONEUSDT','ONTUSDT','OPUSDT','OXTUSDT','PENDLEUSDT',
-            'PEOPLEUSDT','PERPUSDT','PHBUSDT','POLYXUSDT','POWRUSDT','QNTUSDT','QTUMUSDT','RADUSDT','RDNTUSDT','REEFUSDT',
-            'RENUSDT','RIFUSDT','RNDRUSDT','ROSEUSDT','RSRUSDT','RUNEUSDT','RVNUSDT','SANDUSDT','SEIUSDT','SFPUSDT',
-            'SHIBUSDT','SKLUSDT','SLPUSDT','SNXUSDT','SOLUSDT','SPELLUSDT','SSVUSDT','STGUSDT','STMXUSDT','STORJUSDT',
-            'STXUSDT','SUNUSDT','SUSHIUSDT','TUSDT','TFUELUSDT','THETAUSDT','TIAUSDT','TOKENUSDT','TRUUSDT','TRXUSDT',
-            'TWTUSDT','UMAUSDT','UNFIUSDT','UNIUSDT','VETUSDT','VGXUSDT','WAVESUSDT','WAXPUSDT','WLDUSDT','WOOUSDT',
-            'XECUSDT','XEMUSDT','XLMUSDT','XMRUSDT','XNOUSDT','XRPUSDT','XTZUSDT','YFIUSDT','YGGUSDT','ZECUSDT',
-            'ZENUSDT','ZILUSDT','ZRXUSDT'
-        ];
+        // ========== 150 COINS ==========
+        const SYMBOLS = ['COTIUSDT','HIGHUSDT','JOEUSDT','ACHUSDT','DUSKUSDT','IDUSDT','CTSIUSDT','BONKUSDT','FLOKIUSDT','PEPEUSDT','WIFUSDT','ENAUSDT','REIUSDT','FRONTUSDT','BICOUSDT','LITUSDT','RLCUSDT','TRBUSDT','SUPERUSDT','TLMUSDT','AGLDUSDT','AIUSDT','ALICEUSDT','ALPHAUSDT','AMBUSDT','ANKRUSDT','API3USDT','ARPAUSDT','ASTRUSDT','ATAUSDT','AUCTIONUSDT','AUDIOUSDT','AVAUSDT','AXSUSDT','BAKEUSDT','BALUSDT','BANDUSDT','BATUSDT','BELUSDT','BLURUSDT','BNXUSDT','BSWUSDT','C98USDT','CELOUSDT','CELRUSDT','CHZUSDT','CKBUSDT','COMBOUSDT','COMPUSDT','CRVUSDT','CVXUSDT','CYBERUSDT','DARUSDT','DASHUSDT','DENTUSDT','DGBUSDT','DODOUSDT','DOGEUSDT','DOTUSDT','DYDXUSDT','EGLDUSDT','ENJUSDT','ENSUSDT','EOSUSDT','ETCUSDT','FETUSDT','FILUSDT','FIOUSDT','FLMUSDT','FLOWUSDT','FORTHUSDT','FTMUSDT','FXSUSDT','GALAUSDT','GLMRUSDT','GLMUSDT','GMTUSDT','GMXUSDT','GRTUSDT','GTCUSDT','HBARUSDT','HFTUSDT','HNTUSDT','HOOKUSDT','HOTUSDT','ICPUSDT','ICXUSDT','ILVUSDT','IMXUSDT','INJUSDT','IOSTUSDT','IOTAUSDT','IOTXUSDT','JASMYUSDT','JTOUSDT','KAVAUSDT','KDAUSDT','KEYUSDT','KLAYUSDT','KNCUSDT','KSMUSDT','LDOUSDT','LEVERUSDT','LINAUSDT','LINKUSDT','LOOMUSDT','LPTUSDT','LQTYUSDT','LRCUSDT','LSKUSDT','LTCUSDT','LUNAUSDT','MAGICUSDT','MANAUSDT','MASKUSDT','MINAUSDT','MKRUSDT','MTLUSDT','NEARUSDT','NEOUSDT','NKNUSDT','NMRUSDT','OCEANUSDT','OGNUSDT','OMGUSDT','ONEUSDT','ONTUSDT','OPUSDT','OXTUSDT','PENDLEUSDT','PEOPLEUSDT','PERPUSDT','PHBUSDT','POLYXUSDT','POWRUSDT','QNTUSDT','QTUMUSDT','RADUSDT','RDNTUSDT','REEFUSDT','RENUSDT','RIFUSDT','RNDRUSDT','ROSEUSDT','RSRUSDT','RUNEUSDT','RVNUSDT','SANDUSDT','SEIUSDT','SFPUSDT','SHIBUSDT','SKLUSDT','SLPUSDT','SNXUSDT','SOLUSDT','SPELLUSDT','SSVUSDT','STGUSDT','STMXUSDT','STORJUSDT','STXUSDT','SUNUSDT','SUSHIUSDT','TUSDT','TFUELUSDT','THETAUSDT','TIAUSDT','TOKENUSDT','TRUUSDT','TRXUSDT','TWTUSDT','UMAUSDT','UNFIUSDT','UNIUSDT','VETUSDT','VGXUSDT','WAVESUSDT','WAXPUSDT','WLDUSDT','WOOUSDT','XECUSDT','XEMUSDT','XLMUSDT','XMRUSDT','XNOUSDT','XRPUSDT','XTZUSDT','YFIUSDT','YGGUSDT','ZECUSDT','ZENUSDT','ZILUSDT','ZRXUSDT'];
 
         const watchCoins = ['COTIUSDT','HIGHUSDT','JOEUSDT','IDUSDT','PEPEUSDT','WIFUSDT'];
-        const SIGNAL_COOLDOWN = 90000;
-        const MIN_RRR = 3.0;
-
-        const tickerData = {};
-        const oiData = {};
-        const fundingData = {};
-        const signalHistory = {};
-        const priceHistory = {};
+        const tickerData = {}, oiData = {}, fundingData = {}, signalHistory = {}, priceHistory = {};
         let lastSignalTime = 0;
 
-        function addLog(msg) {
-            const logDiv = document.getElementById('log');
-            const now = new Date();
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerHTML = `<span class="time">[${now.toTimeString().slice(0,8)}]</span> ${msg}`;
-            logDiv.prepend(entry);
-            if (logDiv.children.length > 50) logDiv.removeChild(logDiv.lastChild);
+        function log(msg) {
+            const l = document.getElementById('log');
+            const t = new Date().toTimeString().slice(0,8);
+            l.innerHTML = `<div>[${t}] ${msg}</div>` + l.innerHTML;
+            if (l.children.length > 30) l.removeChild(l.lastChild);
         }
 
-        async function fetchBinanceAPI(endpoint) {
+        async function fetchOI() {
             try {
-                const timestamp = Date.now();
-                const queryString = `timestamp=${timestamp}`;
-                const signature = await crypto.subtle.importKey('raw', new TextEncoder().encode(BINANCE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
-                    .then(key => crypto.subtle.sign('HMAC', key, new TextEncoder().encode(queryString)))
-                    .then(sig => Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join(''));
-                const url = `https://fapi.binance.com${endpoint}?${queryString}&signature=${signature}`;
-                const res = await fetch(url, { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
-                return await res.json();
-            } catch(e) { return null; }
-        }
-
-        async function fetchAllOI() {
-            try {
-                const res = await fetch('https://fapi.binance.com/fapi/v1/openInterest', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    data.forEach(d => { oiData[d.symbol] = parseFloat(d.openInterest); });
-                    addLog('✅ OI data loaded');
-                }
+                const r = await fetch('https://fapi.binance.com/fapi/v1/openInterest', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
+                const d = await r.json();
+                if (Array.isArray(d)) { d.forEach(x => oiData[x.symbol] = parseFloat(x.openInterest)); log('✅ OI loaded'); }
             } catch(e) {}
         }
 
-        async function fetchAllFunding() {
+        async function fetchFunding() {
             try {
-                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    data.forEach(d => { fundingData[d.symbol] = parseFloat(d.lastFundingRate); });
-                    addLog('✅ Funding rate loaded');
-                }
+                const r = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex', { headers: { 'X-MBX-APIKEY': BINANCE_API_KEY } });
+                const d = await r.json();
+                if (Array.isArray(d)) { d.forEach(x => fundingData[x.symbol] = parseFloat(x.lastFundingRate)); log('✅ Funding loaded'); }
             } catch(e) {}
         }
 
-        function connectWebSocket() {
-            const tickerStreams = SYMBOLS.map(s => `${s.toLowerCase()}@ticker`).join('/');
-            const ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${tickerStreams}`);
-            ws.onopen = () => {
-                addLog('✅ WebSocket LIVE. 150 coins scanning...');
-                document.querySelector('.loading')?.remove();
-            };
-            ws.onmessage = (event) => {
-                const msg = JSON.parse(event.data);
-                if (!msg.data || !msg.data.s) return;
+        function connectWS() {
+            const streams = SYMBOLS.map(s => s.toLowerCase() + '@ticker').join('/');
+            const ws = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + streams);
+            ws.onopen = () => { log('✅ WebSocket LIVE'); document.querySelector('#signals div')?.remove(); };
+            ws.onmessage = (e) => {
+                const msg = JSON.parse(e.data);
+                if (!msg.data) return;
                 const t = msg.data;
-                const symbol = t.s;
+                const s = t.s;
                 const price = parseFloat(t.c);
                 const change = parseFloat(t.P);
-                const volume = parseFloat(t.q);
-                const high = parseFloat(t.h);
-                const low = parseFloat(t.l);
-                const bidQty = parseFloat(t.B);
-                const askQty = parseFloat(t.A);
-                const count = parseInt(t.n);
+                const vol = parseFloat(t.q);
+                const bid = parseFloat(t.B);
+                const ask = parseFloat(t.A);
+                const cnt = parseInt(t.n);
 
-                if (!priceHistory[symbol]) priceHistory[symbol] = [];
-                priceHistory[symbol].push({ price, volume: parseFloat(t.v), time: Date.now() });
-                if (priceHistory[symbol].length > 200) priceHistory[symbol].shift();
+                if (!priceHistory[s]) priceHistory[s] = [];
+                priceHistory[s].push({ price, volume: parseFloat(t.v), time: Date.now() });
+                if (priceHistory[s].length > 200) priceHistory[s].shift();
 
-                tickerData[symbol] = { price, change, volume, high, low, bidQty, askQty, count, prevPrice: tickerData[symbol]?.price || price };
-                if (watchCoins.includes(symbol)) updateWatchlist();
-                analyzeSignal(symbol);
+                tickerData[s] = { price, change, volume: vol, bidQty: bid, askQty: ask, count: cnt, prevPrice: tickerData[s]?.price || price };
+                if (watchCoins.includes(s)) updateWatch();
+                analyzeSignal(s);
             };
-            ws.onerror = () => addLog('❌ WS error');
-            ws.onclose = () => { addLog('⚠️ Reconnecting...'); setTimeout(connectWebSocket, 3000); };
+            ws.onclose = () => { log('⚠️ Reconnecting...'); setTimeout(connectWS, 3000); };
         }
 
-        function updateWatchlist() {
-            const container = document.getElementById('watchlist');
-            container.innerHTML = '';
-            for (const symbol of watchCoins) {
-                const d = tickerData[symbol];
+        function updateWatch() {
+            const c = document.getElementById('watchlist');
+            c.innerHTML = '';
+            for (const s of watchCoins) {
+                const d = tickerData[s];
                 if (!d) continue;
-                const name = symbol.replace('USDT','');
-                const cls = d.change >= 0 ? 'up' : 'down';
+                const n = s.replace('USDT','');
+                const cls = d.change >= 0 ? 'green' : 'red';
                 const sign = d.change >= 0 ? '+' : '';
-                container.innerHTML += `<div class="watch-item"><span class="watch-symbol">${name}</span><span>$${d.price < 1 ? d.price.toFixed(6) : d.price.toFixed(4)}</span><span class="watch-change ${cls}">${sign}${d.change.toFixed(1)}%</span></div>`;
+                c.innerHTML += `<div class="watch-item"><b>${n}</b> $${d.price<1?d.price.toFixed(6):d.price.toFixed(4)} <span class="${cls}">${sign}${d.change.toFixed(1)}%</span></div>`;
             }
-        }
-
-        function calcEMA(data, period) {
-            if (data.length < period) return null;
-            const k = 2 / (period + 1);
-            let ema = data.slice(0, period).reduce((a,b) => a + b.price, 0) / period;
-            for (let i = period; i < data.length; i++) ema = data[i].price * k + ema * (1 - k);
-            return ema;
-        }
-
-        function calcVWAP(data) {
-            if (data.length < 5) return null;
-            let totalPV = 0, totalVol = 0;
-            for (const d of data) { totalPV += d.price * d.volume; totalVol += d.volume; }
-            return totalVol > 0 ? totalPV / totalVol : null;
         }
 
         function analyzeSignal(symbol) {
             const now = Date.now();
-            if (now - lastSignalTime < SIGNAL_COOLDOWN) return;
+            if (now - lastSignalTime < 90000) return;
             if (signalHistory[symbol]) return;
             const d = tickerData[symbol];
             if (!d) return;
-            const history = priceHistory[symbol];
-            if (!history || history.length < 50) return;
+            const hist = priceHistory[symbol];
+            if (!hist || hist.length < 50) return;
 
-            const price = d.price, change = d.change, volume = d.volume;
-            const bidQty = d.bidQty, askQty = d.askQty, count = d.count;
-            const range = d.high - d.low;
-
-            const volatility = range > 0 ? (range / price) * 100 : 0;
-            const potentialMove = Math.abs(change) + volatility;
-            if (potentialMove < 5) return;
-            if (volume < 800000) return;
-            const avgTradeSize = count > 0 ? volume / count : 0;
-            if (avgTradeSize < 600) return;
-            const spread = range > 0 ? (range / price) * 100 : 1;
-            if (spread > 0.1) return;
-
-            const baRatio = askQty > 0 ? bidQty / askQty : 1;
-            const isLongBias = baRatio > 1.4, isShortBias = baRatio < 0.6;
-            if (!isLongBias && !isShortBias) return;
-
-            const priceDelta = price - d.prevPrice;
-            const cvdBullish = priceDelta > 0 && baRatio > 1.3;
-            const cvdBearish = priceDelta < 0 && baRatio < 0.7;
-            if (!cvdBullish && !cvdBearish) return;
-
-            const ema9 = calcEMA(history, 9), ema21 = calcEMA(history, 21), ema50 = calcEMA(history, 50);
-            let tfAlignment = 0;
-            if (ema9 && ema21 && ema50) {
-                if (ema9 > ema21 && ema21 > ema50) tfAlignment = 2;
-                else if (ema9 < ema21 && ema21 < ema50) tfAlignment = -2;
-                else if (ema9 > ema21) tfAlignment = 1;
-                else if (ema9 < ema21) tfAlignment = -1;
-            }
+            const price = d.price, change = d.change, vol = d.volume;
+            const bid = d.bidQty, ask = d.askQty, cnt = d.count;
+            const baRatio = ask > 0 ? bid / ask : 1;
             const direction = change > 0 ? 'long' : 'short';
-            if (direction === 'long' && tfAlignment < 0) return;
-            if (direction === 'short' && tfAlignment > 0) return;
 
-            const vwap = calcVWAP(history);
-            let vwapScore = 0;
-            if (vwap) {
-                const vwapDev = ((price - vwap) / vwap) * 100;
-                if (direction === 'long' && vwapDev > -0.5 && vwapDev < 3) vwapScore = 10;
-                else if (direction === 'short' && vwapDev < 0.5 && vwapDev > -3) vwapScore = 10;
-                else if (Math.abs(vwapDev) < 5) vwapScore = 5;
-            }
+            if (direction === 'long' && baRatio < 1.4) return;
+            if (direction === 'short' && baRatio > 0.6) return;
+
+            const cvdOk = (direction === 'long' && price > d.prevPrice && baRatio > 1.3) || (direction === 'short' && price < d.prevPrice && baRatio < 0.7);
+            if (!cvdOk) return;
+
+            const avgTrade = cnt > 0 ? vol / cnt : 0;
+            if (vol < 800000 || avgTrade < 600) return;
 
             const hour = new Date().getUTCHours();
-            const isHighVolSession = (hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22);
-            if (!isHighVolSession) return;
-
-            const whaleTrades = avgTradeSize > 2000 ? Math.floor(volume / avgTradeSize / 50) : 0;
-            const hasWhaleActivity = whaleTrades > 3;
-
-            const priceVsHighLow = (price - d.low) / (range || 1);
-            const isFalseBreakout = (direction === 'long' && priceVsHighLow > 0.95) || (direction === 'short' && priceVsHighLow < 0.05);
-            if (isFalseBreakout && !hasWhaleActivity) return;
+            if (!((hour >= 7 && hour <= 10) || (hour >= 12 && hour <= 16) || (hour >= 19 && hour <= 22))) return;
 
             const sl = direction === 'long' ? price * 0.965 : price * 1.035;
             const tp1 = direction === 'long' ? price * 1.05 : price * 0.95;
-            const risk = Math.abs(price - sl), reward = Math.abs(tp1 - price);
-            const rrr = risk > 0 ? reward / risk : 0;
-            if (rrr < MIN_RRR) return;
+            const rrr = Math.abs(price - sl) > 0 ? Math.abs(tp1 - price) / Math.abs(price - sl) : 0;
+            if (rrr < 3) return;
 
             const oi = oiData[symbol] || 0;
             const funding = fundingData[symbol] || 0;
-            let oiScore = 0, fundingScore = 0;
-            if (direction === 'long' && funding < 0.005) fundingScore = 5;
-            if (direction === 'short' && funding > 0.005) fundingScore = 5;
-            if (oi > 0) oiScore = 5;
 
-            let score = 0;
-            score += Math.min(15, potentialMove * 2.5);
+            let score = 50;
+            score += Math.min(15, Math.abs(change) * 3);
             score += Math.min(12, Math.abs(baRatio - 1) * 25);
-            score += volume > 3000000 ? 12 : volume > 1500000 ? 8 : 4;
-            score += Math.abs(tfAlignment) >= 2 ? 12 : Math.abs(tfAlignment) >= 1 ? 8 : 0;
-            score += vwapScore;
-            score += isHighVolSession ? 5 : 0;
-            score += hasWhaleActivity ? 5 : 0;
-            score += rrr >= 4 ? 5 : rrr >= 3 ? 3 : 0;
-            score += (cvdBullish || cvdBearish) ? 15 : 0;
-            score += Math.min(10, Math.abs(change) * 2);
-            score += oiScore + fundingScore;
-            score = Math.min(100, score);
+            score += vol > 3000000 ? 12 : vol > 1500000 ? 8 : 4;
+            score += rrr >= 4 ? 5 : 3;
+            score += cvdOk ? 15 : 0;
+            if (oi > 0) score += 5;
+            if ((direction === 'long' && funding < 0.005) || (direction === 'short' && funding > 0.005)) score += 5;
             if (score < 85) return;
 
             signalHistory[symbol] = true;
@@ -301,47 +159,40 @@
             const type = direction;
             const tp2 = type === 'long' ? price * 1.08 : price * 0.92;
 
-            const confluenceTags = [];
-            if (baRatio > 1.6) confluenceTags.push('Bid dominance');
-            if (baRatio < 0.4) confluenceTags.push('Ask dominance');
-            if (Math.abs(tfAlignment) >= 2) confluenceTags.push('EMA ribbon aligned');
-            if (vwapScore >= 10) confluenceTags.push('VWAP optimal');
-            if (hasWhaleActivity) confluenceTags.push(`Whale (${whaleTrades} trades)`);
-            if (cvdBullish) confluenceTags.push('CVD bullish');
-            if (cvdBearish) confluenceTags.push('CVD bearish');
-            if (rrr >= 4) confluenceTags.push('RRR excellent');
-            if (volatility > 3) confluenceTags.push('High volatility');
-            if (oi > 0) confluenceTags.push(`OI: $${(oi/1000000).toFixed(1)}M`);
-            if (funding !== 0) confluenceTags.push(`Funding: ${(funding*100).toFixed(3)}%`);
+            let tags = '';
+            if (baRatio > 1.6) tags += '✔Bid dominance ';
+            if (baRatio < 0.4) tags += '✔Ask dominance ';
+            if (rrr >= 4) tags += '✔RRR excellent ';
+            if (oi > 0) tags += '✔OI:$' + (oi/1000000).toFixed(1) + 'M ';
+            if (funding !== 0) tags += '✔F:' + (funding*100).toFixed(3) + '% ';
 
-            const container = document.getElementById('signals-container');
-            container.innerHTML = `
-                <div class="signal-card ${type}">
-                    <div class="signal-header">
-                        <span class="signal-type">${type === 'long' ? '🟢 LONG' : '🔴 SHORT'} — ${name}</span>
-                        <span class="accuracy">🎯 ${score.toFixed(0)}%</span>
+            const sigDiv = document.getElementById('signals');
+            sigDiv.innerHTML = `
+                <div class="signal ${type}">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span class="signal-title">${type==='long'?'🟢 LONG':'🔴 SHORT'} — ${name}</span>
+                        <span class="score">🎯 ${score.toFixed(0)}%</span>
                     </div>
-                    <div class="rrr">📐 RRR: 1:${rrr.toFixed(1)} <span class="badge ${type === 'long' ? 'bullish' : 'bearish'}">${type.toUpperCase()}</span></div>
-                    <div class="signal-details">
-                        <div class="detail-item"><span class="detail-label">Entry:</span><span class="detail-value">$${price < 1 ? price.toFixed(6) : price.toFixed(4)}</span></div>
-                        <div class="detail-item"><span class="detail-label">SL:</span><span class="detail-value">$${sl < 1 ? sl.toFixed(6) : sl.toFixed(4)} (-${((Math.abs(price-sl)/price)*100).toFixed(1)}%)</span></div>
-                        <div class="detail-item"><span class="detail-label">TP1 (+5%):</span><span class="detail-value">$${tp1 < 1 ? tp1.toFixed(6) : tp1.toFixed(4)}</span></div>
-                        <div class="detail-item"><span class="detail-label">TP2 (+8%):</span><span class="detail-value">$${tp2 < 1 ? tp2.toFixed(6) : tp2.toFixed(4)}</span></div>
-                    </div>
-                    <div class="confluence">${confluenceTags.map(t => t.includes('Whale')||t.includes('Funding') ? `<span class="warn">✔ ${t}</span>` : `<span>✔ ${t}</span>`).join('')}</div>
+                    <div style="color:#a78bfa;font-size:10px;">📐 RRR: 1:${rrr.toFixed(1)}</div>
+                    <div class="row"><span class="label">Entry:</span><span class="val">$${price<1?price.toFixed(6):price.toFixed(4)}</span></div>
+                    <div class="row"><span class="label">SL:</span><span class="val">$${sl<1?sl.toFixed(6):sl.toFixed(4)} (-${((Math.abs(price-sl)/price)*100).toFixed(1)}%)</span></div>
+                    <div class="row"><span class="label">TP1 (+5%):</span><span class="val">$${tp1<1?tp1.toFixed(6):tp1.toFixed(4)}</span></div>
+                    <div class="row"><span class="label">TP2 (+8%):</span><span class="val">$${tp2<1?tp2.toFixed(6):tp2.toFixed(4)}</span></div>
+                    <div class="tags">${tags}</div>
                 </div>
-            ` + container.innerHTML;
+            ` + sigDiv.innerHTML;
 
-            addLog(`🚨 ${type.toUpperCase()} ${name} | Score: ${score.toFixed(0)}% | RRR: 1:${rrr.toFixed(1)} | $${price.toFixed(6)}`);
+            log(`🚨 ${type.toUpperCase()} ${name} | ${score.toFixed(0)}% | $${price.toFixed(6)}`);
             setTimeout(() => { signalHistory[symbol] = false; }, 600000);
         }
 
-        fetchAllOI();
-        fetchAllFunding();
-        setInterval(fetchAllOI, 120000);
-        setInterval(fetchAllFunding, 120000);
-        connectWebSocket();
-        addLog('🟢 v5.0 API LIVE | 150 coins | OI & Funding REAL-TIME | 15 filters');
+        // ========== INIT ==========
+        fetchOI();
+        fetchFunding();
+        setInterval(fetchOI, 120000);
+        setInterval(fetchFunding, 120000);
+        connectWS();
+        log('🟢 v5.0 Active');
     </script>
 </body>
 </html>
